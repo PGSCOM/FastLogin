@@ -1,0 +1,36 @@
+name: Build FastLogin
+
+on:
+  push:
+    branches: [ main, arcligh ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Maven local repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
+
+      - name: Build with Maven (skip tests)
+        run: mvn -B -V -DskipTests clean package
+
+      - name: Upload bukkit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fastlogin-bukkit
+          path: bukkit/target/*.jar

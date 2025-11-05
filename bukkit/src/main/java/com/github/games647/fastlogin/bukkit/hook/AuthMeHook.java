@@ -39,6 +39,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * GitHub: <a href="https://github.com/Xephi/AuthMeReloaded/">...</a>
@@ -75,7 +77,13 @@ public class AuthMeHook implements AuthPlugin<Player>, Listener {
     public void onSessionRestore(RestoreSessionEvent restoreSessionEvent) {
         Player player = restoreSessionEvent.getPlayer();
 
-        BukkitLoginSession session = plugin.getSession(player.spigot().getRawAddress());
+        InetSocketAddress playerAddress = null;
+        SocketAddress address = player.getAddress();
+        if (address instanceof InetSocketAddress) {
+            playerAddress = (InetSocketAddress) address;
+        }
+
+        BukkitLoginSession session = playerAddress != null ? plugin.getSession(playerAddress) : null;
         if (session != null && session.isVerifiedPremium()) {
             restoreSessionEvent.setCancelled(true);
         }

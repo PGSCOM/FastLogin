@@ -40,6 +40,10 @@ public final class InetUtils {
      * @return true if address is from local network or even from the device itself (loopback)
      */
     public static boolean isLocalAddress(InetAddress address) {
+        if (address == null) {
+            return false;
+        }
+
         // Loopback addresses like 127.0.* (IPv4) or [::1] (IPv6)
         return address.isLoopbackAddress()
                 // Example: 10.0.0.0, 172.16.0.0, 192.168.0.0, fec0::/10 (deprecated)
@@ -54,10 +58,14 @@ public final class InetUtils {
 
     private static boolean isIPv6UniqueSiteLocal(InetAddress address) {
         // ref: https://en.wikipedia.org/wiki/Unique_local_address
+        byte[] raw = address.getAddress();
+        if (raw == null || raw.length == 0) {
+            return false;
+        }
 
         // currently undefined but could be used in the near future fc00::/8
-        return (address.getAddress()[0] & 0xFF) == 0xFC
+        return (raw[0] & 0xFF) == 0xFC
                 // in use for unique site-local fd00::/8
-                || (address.getAddress()[0] & 0xFF) == 0xFD;
+                || (raw[0] & 0xFF) == 0xFD;
     }
 }

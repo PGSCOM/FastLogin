@@ -31,6 +31,8 @@ import com.github.games647.fastlogin.bukkit.task.FloodgateAuthTask;
 import com.github.games647.fastlogin.bukkit.task.ForceLoginTask;
 import com.github.games647.fastlogin.core.hooks.bedrock.FloodgateService;
 import org.bukkit.Bukkit;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -79,7 +81,13 @@ public class ConnectionListener implements Listener {
         // session exists so the player is ready for force login
         // cases: Paper (firing BungeeCord message before PlayerJoinEvent) or not running BungeeCord and already
         // having the login session from the login process
-        BukkitLoginSession session = plugin.getSession(player.spigot().getRawAddress());
+        InetSocketAddress playerAddress = null;
+        SocketAddress address = player.getAddress();
+        if (address instanceof InetSocketAddress) {
+            playerAddress = (InetSocketAddress) address;
+        }
+
+        BukkitLoginSession session = playerAddress != null ? plugin.getSession(playerAddress) : null;
 
         if (session == null) {
             // Floodgate players usually don't have a session at this point
@@ -95,7 +103,7 @@ public class ConnectionListener implements Listener {
                 }
             }
 
-            String sessionId = plugin.getSessionId(player.spigot().getRawAddress());
+            String sessionId = playerAddress != null ? plugin.getSessionId(playerAddress) : "unknown";
             plugin.getLog().info("No on-going login session for player: {} with ID {}. ", player, sessionId);
             plugin.getLog().info("Setups using Minecraft proxies will start delayed "
                 + "when the command from the proxy is received");
