@@ -2,9 +2,9 @@ name: Build FastLogin
 
 on:
   push:
-    branches: [ main, arcligh ]
+    branches: [ arclight ]
   pull_request:
-    branches: [ main ]
+    branches: [ arclight ]
   workflow_dispatch:
 
 jobs:
