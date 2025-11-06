@@ -43,8 +43,19 @@ import java.util.Optional;
  */
 public class ProxyAgnosticMojangResolver extends MojangResolver {
 
+    public ProxyAgnosticMojangResolver() {
+        super();
+    }
+
     public ProxyAgnosticMojangResolver(Options options) {
-        super(options);
+        super();
+        if (options != null) {
+            // configure using setter API available in MojangResolver implementation
+            setMaxNameRequests(options.getMaxNameRequests());
+            if (options.getProxySelector() != null) {
+                setProxySelector(options.getProxySelector());
+            }
+        }
     }
     @Override
     public Optional<Verification> hasJoined(String username, String serverHash, InetAddress hostIp)

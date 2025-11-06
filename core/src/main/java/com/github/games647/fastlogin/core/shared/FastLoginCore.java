@@ -120,10 +120,10 @@ public class FastLoginCore<P extends C, C, T extends PlatformPlugin<C>> {
             return;
         }
 
-        Options resolverOptions = new Options();
-        resolverOptions.setMaxNameRequests(config.getInt("mojang-request-limit", 600));
+    Options resolverOptions = new Options();
+    resolverOptions.setMaxNameRequests(config.getInt("mojang-request-limit", 600));
 
-        Set<Proxy> proxies = config.getStringList("proxies")
+    Set<Proxy> proxies = config.getStringList("proxies")
                 .stream()
                 .map(proxy -> proxy.split(":"))
                 .map(proxy -> new InetSocketAddress(proxy[0], Integer.parseInt(proxy[1])))
@@ -145,8 +145,16 @@ public class FastLoginCore<P extends C, C, T extends PlatformPlugin<C>> {
 //        resolver.setOutgoingAddresses(addresses);
 
         // Initialize the resolver based on the config parameter
-        this.resolver = this.config.getBoolean("useProxyAgnosticResolver", false)
-            ? new ProxyAgnosticMojangResolver(resolverOptions) : new MojangResolver(resolverOptions);
+        if (this.config.getBoolean("useProxyAgnosticResolver", false)) {
+            this.resolver = new ProxyAgnosticMojangResolver(resolverOptions);
+        } else {
+            this.resolver = new MojangResolver();
+            // apply options via setter API available in MojangResolver
+            this.resolver.setMaxNameRequests(resolverOptions.getMaxNameRequests());
+            if (resolverOptions.getProxySelector() != null) {
+                this.resolver.setProxySelector(resolverOptions.getProxySelector());
+            }
+        }
 
         antiBot = createAntiBotService(config.getSection("anti-bot"));
     }
